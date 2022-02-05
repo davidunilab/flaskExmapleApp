@@ -19,6 +19,8 @@ word_fields = {
     "translation": fields.String,
     "assoc": fields.String,
     "connection": fields.String,
+    "examples": fields.String,
+    "link": fields.String,
     "id": fields.Integer,
 }
 
@@ -27,6 +29,8 @@ wordParser.add_argument("word")
 wordParser.add_argument("translation")
 wordParser.add_argument("assoc")
 wordParser.add_argument("connection")
+wordParser.add_argument("examples")
+wordParser.add_argument("link")
 wordParser.add_argument("id")
 
 
@@ -47,6 +51,8 @@ class WordModel(db.Model):
     translation = db.Column(db.String(120), nullable=True)
     assoc = db.Column(db.String(120), nullable=True)
     connection = db.Column(db.String(120), nullable=True)
+    examples = db.Column(db.String(200), nullable=True)
+    link = db.Column(db.String(200), nullable=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
 
     def __repr__(self):
@@ -134,7 +140,8 @@ class Words(Resource):
         args = wordParser.parse_args()
         word = WordModel.query.filter_by(user_id=get_jwt_identity()).filter_by(id=args['id']).first()
         for arg in word_fields.keys():
-            setattr(word, arg, args[arg])
+            if args[arg] != None:
+                setattr(word, arg, args[arg])
         db.session.add(word)
         db.session.commit()
         return jsonify({"msg": "word has been updated"})
