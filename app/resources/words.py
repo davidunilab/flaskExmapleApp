@@ -1,11 +1,8 @@
-from flask_restful import Resource, Api, reqparse, fields, marshal_with
-from flask import Flask, jsonify, redirect
-from werkzeug.security import generate_password_hash, check_password_hash
-from flask_jwt_extended import create_access_token, get_jwt_identity, jwt_required, JWTManager
-from app.models import UserModel, WordModel, db
+from flask import jsonify
+from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask_restful import Resource, marshal_with, fields, reqparse
 
-jwt = JWTManager()
-api = Api()
+from app.models import WordModel, db
 
 word_fields = {
     "word": fields.String,
@@ -26,47 +23,6 @@ wordParser.add_argument("examples")
 wordParser.add_argument("link")
 wordParser.add_argument("id")
 
-
-class Auth(Resource):
-    def post(self):
-        loginParser = reqparse.RequestParser()
-        loginParser.add_argument("email")
-        loginParser.add_argument("password")
-        args = loginParser.parse_args()
-
-
-        user = UserModel.query.filter_by(email=args["email"]).first()
-
-
-        if user == None:
-            return {"msg": "Email was not found"}
-
-        if args["email"] != user.email or not check_password_hash(user.password, args["password"]):
-            return jsonify({"msg": "Bad username or password"}), 401
-
-        access_token = create_access_token(identity=user.id)
-        print(access_token)
-
-        return jsonify(access_token=access_token)
-
-
-class Register(Resource):
-    def post(self):
-        registerParser = reqparse.RequestParser()
-        registerParser.add_argument("username")
-        registerParser.add_argument("email")
-        registerParser.add_argument("password")
-        args = registerParser.parse_args()
-
-        user = UserModel(
-            username=args['username'],
-            email=args['email'],
-            password=generate_password_hash(args['password'])
-        )
-
-        db.session.add(user)
-        db.session.commit()
-        return {"msg": "created"}, 201
 
 
 

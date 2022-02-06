@@ -1,6 +1,6 @@
 from flask import Flask, jsonify, redirect
 from app.models import db
-from app.resoruces import Auth, Register, Words, api, jwt
+from app.resources import Auth, Register, Words, api, jwt
 
 
 def create_app():
